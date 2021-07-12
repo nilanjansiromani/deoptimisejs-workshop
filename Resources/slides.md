@@ -4,7 +4,8 @@ class:
   - invert
 marp: true
 ---
-# (De)optimising JavaScript 
+# (De)optimising JavaScript
+
 ![JS LOGO](https://iconape.com/wp-content/files/vr/353405/svg/javascript-js-seeklogo.com.svg)
 
 ---
