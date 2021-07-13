@@ -424,10 +424,86 @@ Nothing happened .... still optimised.
 [optimizing 0x3bad1e22ca11 <JSFunction add (sfi = 0x3badcf2e4129)> - took 0.373, 0.647, 0.008 ms]
 [completed optimizing 0x3bad1e22ca11 <JSFunction add (sfi = 0x3badcf2e4129)>]
 ```
+---
+# Internally
+
+Since the structure keeps changing... the Shape Object keeps getting recreated every single time.
+
+So now the lookup becomes a Linear Search which is O(n) and youhave slowness
 
 ---
 # Congratulations you have successfully deoptimised your code !!
 # Mission accomplished 
 
 ## And this time you have proof too ... to show in your appraisal !
+---
+
+
+# This is where Typescript comes in and plays a major role
+![ts](https://www.typescriptlang.org/images/branding/logo-grouping.svg)
+
+---
+
+# Mumbo Jumbo .... is my code actually slow ?
+
+```
+❯ node example-3.js
+14.533002
+
+~/codebase/personal/deoptimise-js/HandsOn main*
+❯ node example-3.js
+14.601682
+```
+
+By just adding `add(2,"4");` in `example-4.js`
+
+```
+~/codebase/personal/deoptimise-js/HandsOn main*
+❯ node example-4.js
+39.978347
+
+~/codebase/personal/deoptimise-js/HandsOn main*
+❯ node example-4.js
+39.938796
+````
+---
+
+# So now we have actual proof that we slowed execution time by 3X
+---
+
+# I want to keep things deoptimised.
+
+- Add flags to the compiler 
+`%NeverOptimizeFunction(add)`
+
+- Run allowing native syntax
+`node --allow-natives-syntax example-5.js`
+
+```shell
+~/codebase/personal/deoptimise-js/HandsOn main*
+❯  node --allow-natives-syntax example-5.js 
+317.228401
+```
+
+---
+
+# taking control of the optimiser .. can I ?
+
+```
+const add = (a,b) => a+b;
+%OptimizeFunctionOnNextCall(add);
+add(2,5)
+```
+```
+❯  node --allow-natives-syntax --trace-opt example-6.js
+[manually marking 0x3674eb71def1 <JSFunction add (sfi = 0x367428f07979)> for non-concurrent optimization]
+[compiling method 0x3674eb71def1 <JSFunction add (sfi = 0x367428f07979)> using TurboFan]
+[optimizing 0x3674eb71def1 <JSFunction add (sfi = 0x367428f07979)> - took 8.810, 13.365, 0.059 ms]
+```
+`[manually marking 0x3674eb71def1 <JSFunction add (sfi = 0x367428f07979)> for non-concurrent optimization]`
+
+---
+
+# Feel like a superhero now ?
+
 ---
