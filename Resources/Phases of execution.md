@@ -504,6 +504,57 @@ add(2,5)
 
 ---
 
+# Does fucntion inlining matter? if not ... why ?
+ 
+ ```js
+const double = (x) => x + x;
+const sumOfDoubles = (y,z) => double(y) + double(z)
+const y = 1;
+const z = 4;
+performance.mark("starting loop")
+while (iterations--) {
+  sumOfDoubles(y,z);
+}
+```
+
+---
+
+# If i replace 
+```
+const double = (x) => x + x;
+const sumOfDoubles = (y,z) => double(y) + double(z)
+```
+with 
+```
+const sumOfDoubles = (y,z) => y+y + z+z
+```
+the execution time reamins fairly constant
+
+---
+
+```
+❯ node --trace-turbo-inlining function-inlining.js 
+Considering 0x107825780 {0x199dca709681 <SharedFunctionInfo double>} for inlining with 0x107825a90 {0x199dca712911 <FeedbackVector[1]>}
+Inlining small function(s) at call site #27:JSCall
+Inlining 0x107825780 {0x199dca709681 <SharedFunctionInfo double>} into 0x107812a78 {0x199dca7096d1 <SharedFunctionInfo sumOfDoubles>}
+Considering 0x107825780 {0x199dca709681 <SharedFunctionInfo double>} for inlining with 0x107825a90 {0x199dca712911 <FeedbackVector[1]>}
+Inlining small function(s) at call site #41:JSCall
+Inlining 0x107825780 {0x199dca709681 <SharedFunctionInfo double>} into 0x107812a78 {0x199dca7096d1 <SharedFunctionInfo sumOfDoubles>}
+Considering 0x107815050 {0x199dca7096d1 <SharedFunctionInfo sumOfDoubles>} for inlining with 0x107815060 {0x199dca7127b9 <FeedbackVector[5]>}
+1 candidate(s) for inlining:
+- candidate: JSCall node #51 with frequency 26813, 1 target(s):
+  - target: 0x107815050 {0x199dca7096d1 <SharedFunctionInfo sumOfDoubles>}, bytecode size: 26, existing opt code's inlined bytecode size: 12
+Inlining 0x107815050 {0x199dca7096d1 <SharedFunctionInfo sumOfDoubles>} into 0x107818e90 {0x199dca709569 <SharedFunctionInfo>}
+Considering 0x107816b78 {0x199dca709681 <SharedFunctionInfo double>} for inlining with 0x107816b88 {0x199dca712911 <FeedbackVector[1]>}
+Inlining small function(s) at call site #91:JSCall
+Inlining 0x107816b78 {0x199dca709681 <SharedFunctionInfo double>} into 0x107818e90 {0x199dca709569 <SharedFunctionInfo>}
+Considering 0x107816b78 {0x199dca709681 <SharedFunctionInfo double>} for inlining with 0x107816b88 {0x199dca712911 <FeedbackVector[1]>}
+Inlining small function(s) at call site #105:JSCall
+Inlining 0x107816b78 {0x199dca709681 <SharedFunctionInfo double>} into 0x107818e90 {0x199dca709569 <SharedFunctionInfo>}
+11.311391
+```
+
+---
 # Feel like a superhero now ?
 
 ---
