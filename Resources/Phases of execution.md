@@ -11,15 +11,25 @@ marp: true
 ---
 
 ## Goal :
-
-To make things faster, we need to understand, what slows things down, 
-
-> question we want to understand today _why does doing something like X slow things down_
-
-And then, we will argue with proof (because we are all engineers and we <3 maths) the claims and assumptions we make.
-
-
 `Visualising Javascript Execution > Phases of execution`
+
+To make things faster, we need to understand, what slows things down,
+And in doing so, lets traverse what happens deep inside the V8 engine
+And see it to believe it.
+
+---
+
+# Pop Quiz
+
+![image](https://user-images.githubusercontent.com/49792104/126462577-6b6d32d1-17a8-4ccc-952a-3ddb24ddffd7.png)
+
+
+This is the average load time of websites (approximated) over the years.
+Question : what was primary reason for the inflection point ?
+a> Javascript started getting better
+b> We started using modern libraries
+c> Both
+d> None
 
 ---
 
@@ -337,10 +347,10 @@ This code needs no in between steps, these runs directly on your machine.
 
 # @play time 
 
-`node example-1.js`
+`node example1.js`
 
 ```
-❯ node example-1.js 
+❯ node example1.js 
 7.097876
 ```
 
@@ -351,7 +361,7 @@ wait ..... how do I know if it was turbofanned
 # Add the flag and run again
 
 ```
-❯ node --trace-opt example-1.js 
+❯ node --trace-opt example1.js 
 [marking 0x1df56995d109 <JSFunction (sfi = 0x1df51fb45759)> for optimized recompilation, reason: hot and stable]
 [marking 0x1df569962151 <JSFunction add (sfi = 0x1df51fb45871)> for optimized recompilation, reason: small function]
 [compiling method 0x1df569962151 <JSFunction add (sfi = 0x1df51fb45871)> using TurboFan]
@@ -385,7 +395,7 @@ wait ..... how do I know if it was turbofanned
 Do note the `add(2,"4");` on line 18
 
 ```
-❯ node --trace-opt example-2.js | grep add 
+❯ node --trace-opt example2.js | grep add 
 [marking 0x133ff57a5c49 <JSFunction add (sfi = 0x133f096c8741)> for optimized recompilation, reason: small function]
 [compiling method 0x133ff57a5c49 <JSFunction add (sfi = 0x133f096c8741)> using TurboFan]
 [optimizing 0x133ff57a5c49 <JSFunction add (sfi = 0x133f096c8741)> - took 0.359, 0.638, 0.007 ms]
@@ -398,7 +408,7 @@ Nothing happened .... still optimised.
 # run again with the --trace-deopt flag
 
 ```
-❯ node --trace-opt --trace-deopt example-2.js | grep add
+❯ node --trace-opt --trace-deopt example2.js | grep add
 [marking 0x07c0b7ae6509 <JSFunction add (sfi = 0x7c0234a4151)> for optimized recompilation, reason: small function]
 [compiling method 0x07c0b7ae6509 <JSFunction add (sfi = 0x7c0234a4151)> using TurboFan]
 [optimizing 0x07c0b7ae6509 <JSFunction add (sfi = 0x7c0234a4151)> - took 0.403, 0.576, 0.010 ms]
@@ -418,7 +428,7 @@ Nothing happened .... still optimised.
 
 ```
 ~/codebase/personal/deoptimise-js/HandsOn main*
-❯ node --trace-opt --trace-deopt example-1.js | grep add
+❯ node --trace-opt --trace-deopt example1.js | grep add
 [marking 0x3bad1e22ca11 <JSFunction add (sfi = 0x3badcf2e4129)> for optimized recompilation, reason: small function]
 [compiling method 0x3bad1e22ca11 <JSFunction add (sfi = 0x3badcf2e4129)> using TurboFan]
 [optimizing 0x3bad1e22ca11 <JSFunction add (sfi = 0x3badcf2e4129)> - took 0.373, 0.647, 0.008 ms]
@@ -447,23 +457,23 @@ So now the lookup becomes a Linear Search which is O(n) and youhave slowness
 # Mumbo Jumbo .... is my code actually slow ?
 
 ```
-❯ node example-3.js
+❯ node example3.js
 14.533002
 
 ~/codebase/personal/deoptimise-js/HandsOn main*
-❯ node example-3.js
+❯ node example3.js
 14.601682
 ```
 
-By just adding `add(2,"4");` in `example-4.js`
+By just adding `add(2,"4");` in `example4.js`
 
 ```
 ~/codebase/personal/deoptimise-js/HandsOn main*
-❯ node example-4.js
+❯ node example4.js
 39.978347
 
 ~/codebase/personal/deoptimise-js/HandsOn main*
-❯ node example-4.js
+❯ node example4.js
 39.938796
 ````
 ---
@@ -477,11 +487,11 @@ By just adding `add(2,"4");` in `example-4.js`
 `%NeverOptimizeFunction(add)`
 
 - Run allowing native syntax
-`node --allow-natives-syntax example-5.js`
+`node --allow-natives-syntax example5.js`
 
 ```shell
 ~/codebase/personal/deoptimise-js/HandsOn main*
-❯  node --allow-natives-syntax example-5.js 
+❯  node --allow-natives-syntax example5.js 
 317.228401
 ```
 
@@ -495,7 +505,7 @@ const add = (a,b) => a+b;
 add(2,5)
 ```
 ```
-❯  node --allow-natives-syntax --trace-opt example-6.js
+❯  node --allow-natives-syntax --trace-opt example6.js
 [manually marking 0x3674eb71def1 <JSFunction add (sfi = 0x367428f07979)> for non-concurrent optimization]
 [compiling method 0x3674eb71def1 <JSFunction add (sfi = 0x367428f07979)> using TurboFan]
 [optimizing 0x3674eb71def1 <JSFunction add (sfi = 0x367428f07979)> - took 8.810, 13.365, 0.059 ms]
